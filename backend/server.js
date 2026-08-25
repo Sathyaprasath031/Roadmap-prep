@@ -54,18 +54,33 @@ app.get('/api/health', (req, res) => {
 
 const PORT = parseInt(process.env.PORT) || 5000;
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
+// Start the server immediately
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Connect to MongoDB with retries (handles Atlas free-tier cold starts)
+const MONGO_RETRIES = 5;
+const MONGO_RETRY_DELAY = 10000; // 10 seconds
+
+async function connectDB(attempt = 1) {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
+    });
     console.log('Connected to MongoDB');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err.message);
-    console.error('');
-    console.error('  ⚠️  Server starting WITHOUT database connection!');
-    console.error('  Routes requiring the database will return 503 errors.');
-    console.error('  Fix: Add your IP to MongoDB Atlas Network Access whitelist.');
-    console.error('');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT} (no DB)`));
-  });
+  } catch (err) {
+    console.error(`MongoDB connection attempt ${attempt}/${MONGO_RETRIES} failed:`, err.message);
+    if (attempt < MONGO_RETRIES) {
+      console.log(`Retrying in ${MONGO_RETRY_DELAY / 1000}s...`);
+      setTimeout(() => connectDB(attempt + 1), MONGO_RETRY_DELAY);
+    } else {
+      console.error('');
+      console.error('  ⚠️  Could not connect to MongoDB after all retries.');
+      console.error('  Routes requiring the database will return 503 errors.');
+      console.error('  Check: MongoDB Atlas Network Access whitelist + connection string.');
+      console.error('');
+    }
+  }
+}
+
+connectDB();
