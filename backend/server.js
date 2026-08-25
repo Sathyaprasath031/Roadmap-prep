@@ -17,7 +17,13 @@ const fetchRoutes = require('./routes/fetch-questions');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://roadmap-prep.vercel.app',
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 
 // DB connection check middleware
