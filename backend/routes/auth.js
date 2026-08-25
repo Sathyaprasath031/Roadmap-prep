@@ -37,7 +37,8 @@ router.post('/register', [
       user: { id: user._id, name: user.name, email: user.email, avatar: user.avatar },
     });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Register error:', error.message);
+    res.status(500).json({ error: 'Server error. Please try again later.' });
   }
 });
 
@@ -70,7 +71,8 @@ router.post('/login', [
       user: { id: user._id, name: user.name, email: user.email, avatar: user.avatar },
     });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Login error:', error.message);
+    res.status(500).json({ error: 'Server error. Please try again later.' });
   }
 });
 
