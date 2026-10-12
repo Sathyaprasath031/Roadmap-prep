@@ -10,6 +10,7 @@ const questionSchema = new mongoose.Schema({
   roadmap: { type: mongoose.Schema.Types.ObjectId, ref: 'Roadmap' },
   company: [{ type: String }],
   frequency: { type: Number, default: 0 },
+  eli5Answer: { type: String, default: '' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Question', questionSchema);

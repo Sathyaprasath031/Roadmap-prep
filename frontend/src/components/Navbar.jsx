@@ -1,14 +1,28 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Menu, X, User, LogOut, Sun, Moon } from 'lucide-react';
-import { useState } from 'react';
+import { Menu, X, User, LogOut, Sun, Moon, Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import SearchModal from './SearchModal';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { dark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // Global Ctrl+K / Cmd+K listener
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -16,6 +30,7 @@ export default function Navbar() {
   };
 
   return (
+    <>
     <nav className="c-nav backdrop-blur-md border-b c-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
@@ -36,6 +51,16 @@ export default function Navbar() {
               <Link to="/quiz" className="c-nav-link text-sm py-1">
                 Quiz
               </Link>
+              {user && (
+                <>
+                  <Link to="/review" className="c-nav-link text-sm py-1">
+                    Review
+                  </Link>
+                  <Link to="/notes" className="c-nav-link text-sm py-1">
+                    Notes
+                  </Link>
+                </>
+              )}
               <Link to="/community" className="c-nav-link text-sm py-1">
                 Community
               </Link>
@@ -48,6 +73,19 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
+            {/* Quick Search Trigger */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 c-input c2 hover:c1 rounded-lg text-xs transition-all hover:scale-105"
+              title="Quick Search (Ctrl + K)"
+            >
+              <Search size={14} className="text-indigo-400" />
+              <span className="hidden lg:inline text-xs">Search</span>
+              <kbd className="text-[10px] px-1.5 py-0.5 rounded border c-border c-card font-mono text-xs">
+                ⌘K
+              </kbd>
+            </button>
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -110,9 +148,22 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden border-t c-border c-bg">
           <div className="px-4 py-3 space-y-2">
+            <button
+              onClick={() => { setSearchOpen(true); setMenuOpen(false); }}
+              className="w-full text-left py-2 px-3 c-input rounded-lg flex items-center justify-between text-sm c2 mb-2"
+            >
+              <span className="flex items-center gap-2"><Search size={14} className="text-indigo-400" /> Search knowledge base</span>
+              <kbd className="text-[10px] px-1 py-0.5 rounded c-card border c-border">⌘K</kbd>
+            </button>
             <Link to="/roadmaps" className="block py-2 c-nav-link" onClick={() => setMenuOpen(false)}>Roadmaps</Link>
             <Link to="/questions" className="block py-2 c-nav-link" onClick={() => setMenuOpen(false)}>Questions</Link>
             <Link to="/quiz" className="block py-2 c-nav-link" onClick={() => setMenuOpen(false)}>Quiz</Link>
+            {user && (
+              <>
+                <Link to="/review" className="block py-2 c-nav-link" onClick={() => setMenuOpen(false)}>Review Queue</Link>
+                <Link to="/notes" className="block py-2 c-nav-link" onClick={() => setMenuOpen(false)}>My Notes</Link>
+              </>
+            )}
             <Link to="/community" className="block py-2 c-nav-link" onClick={() => setMenuOpen(false)}>Community</Link>
             {user && <Link to="/dashboard" className="block py-2 c-nav-link" onClick={() => setMenuOpen(false)}>Dashboard</Link>}
             {user ? (
@@ -127,5 +178,7 @@ export default function Navbar() {
         </div>
       )}
     </nav>
+    <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+    </>
   );
 }

@@ -5,15 +5,17 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const { category, difficulty, search, page = 1, limit = 20 } = req.query;
+    const { category, difficulty, company, search, page = 1, limit = 20 } = req.query;
     const filter = {};
 
     if (category) filter.category = category;
     if (difficulty) filter.difficulty = difficulty;
+    if (company) filter.company = { $in: [new RegExp(company, 'i')] };
     if (search) {
       filter.$or = [
         { title: { $regex: search, $options: 'i' } },
         { tags: { $in: [new RegExp(search, 'i')] } },
+        { company: { $in: [new RegExp(search, 'i')] } },
       ];
     }
 

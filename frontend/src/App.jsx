@@ -12,6 +12,10 @@ import Dashboard from './pages/Dashboard';
 import Quiz from './pages/Quiz';
 import CommunityRoadmaps from './pages/CommunityRoadmaps';
 import ProgressReport from './pages/ProgressReport';
+import Review from './pages/Review';
+import Flashcards from './pages/Flashcards';
+import FocusMode from './pages/FocusMode';
+import Notes from './pages/Notes';
 
 function App() {
   return (
@@ -31,6 +35,10 @@ function App() {
             <Route path="/community" element={<CommunityRoadmaps />} />
             <Route path="/report" element={<ProgressReport />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/review" element={<Review />} />
+            <Route path="/flashcards" element={<Flashcards />} />
+            <Route path="/focus" element={<FocusMode />} />
+            <Route path="/notes" element={<Notes />} />
           </Routes>
         </div>
       </BrowserRouter>

@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Clock, ExternalLink, CheckCircle, Circle, ChevronDown, ChevronUp, ArrowLeft, Video, BookOpen, FileText, Wrench, GraduationCap, BookmarkPlus } from 'lucide-react';
+import { Clock, ExternalLink, CheckCircle, Circle, ChevronDown, ChevronUp, ArrowLeft, Video, BookOpen, FileText, Wrench, GraduationCap, BookmarkPlus, Edit3 } from 'lucide-react';
 import StepComments from '../components/StepComments';
+import NoteEditor from '../components/NoteEditor';
 
 const typeIcons = {
   article: FileText,
@@ -31,6 +32,7 @@ export default function RoadmapDetail() {
   const [expandedSteps, setExpandedSteps] = useState({});
   const [completedSteps, setCompletedSteps] = useState(new Set());
   const [savingStep, setSavingStep] = useState(null);
+  const [noteOpenMap, setNoteOpenMap] = useState({});
 
   useEffect(() => {
     const fetchRoadmap = async () => {
@@ -256,6 +258,29 @@ export default function RoadmapDetail() {
                           );
                         })}
                       </div>
+                    </div>
+                  )}
+
+                  {/* Personal Notes per Step */}
+                  {user && (
+                    <div className="mt-4 pt-4 border-t c-border">
+                      {noteOpenMap[step.order] ? (
+                        <NoteEditor
+                          targetType="Step"
+                          targetId={`${roadmap._id}-${step.order}`}
+                          roadmapId={roadmap._id}
+                          stepOrder={step.order}
+                          initialTitle={`${roadmap.title} — Step ${step.order}: ${step.title}`}
+                          onClose={() => setNoteOpenMap(prev => ({ ...prev, [step.order]: false }))}
+                        />
+                      ) : (
+                        <button
+                          onClick={() => setNoteOpenMap(prev => ({ ...prev, [step.order]: true }))}
+                          className="text-xs text-indigo-400 hover:underline flex items-center gap-1.5"
+                        >
+                          <Edit3 size={13} /> Add / View Personal Notes for this step
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

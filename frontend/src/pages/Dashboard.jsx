@@ -2,13 +2,16 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, TrendingUp, BookOpen, Clock, ArrowRight, FileText } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, BookOpen, Clock, ArrowRight, FileText, Brain, Layers, Timer, Edit3, CheckCircle2 } from 'lucide-react';
+import StudyPlanWidget from '../components/StudyPlanWidget';
+import WeaknessMap from '../components/WeaknessMap';
 
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [roadmaps, setRoadmaps] = useState([]);
   const [progressMap, setProgressMap] = useState({});
+  const [reviewStats, setReviewStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,11 +23,13 @@ export default function Dashboard() {
 
     const fetchData = async () => {
       try {
-        const [roadmapsRes, progressRes] = await Promise.all([
+        const [roadmapsRes, progressRes, reviewRes] = await Promise.all([
           axios.get('/api/roadmaps'),
           axios.get('/api/progress'),
+          axios.get('/api/review/stats').catch(() => ({ data: null })),
         ]);
         setRoadmaps(roadmapsRes.data);
+        if (reviewRes.data) setReviewStats(reviewRes.data);
 
         // Build a map of roadmapId -> progress data
         const pMap = {};
@@ -97,7 +102,42 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Continue Learning */}
+      {/* Interview Countdown & Study Plan Widget */}
+      <StudyPlanWidget />
+
+      {/* Spaced Repetition Queue Banner (if items due or available) */}
+      <div className="c-card border border-indigo-500/20 bg-indigo-500/5 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-xl bg-indigo-600/10 text-indigo-400 flex items-center justify-center flex-shrink-0">
+            <Brain size={24} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold c1 text-base">Spaced Repetition Review Queue</h3>
+              {reviewStats?.dueCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-500 text-white">
+                  {reviewStats.dueCount} Due
+                </span>
+              )}
+            </div>
+            <p className="text-xs c2 mt-0.5">
+              {reviewStats?.dueCount > 0
+                ? `${reviewStats.dueCount} concepts are ready for reinforcement today to maintain long-term memory.`
+                : 'All scheduled reviews are up-to-date. You can practice new concepts anytime.'}
+            </p>
+          </div>
+        </div>
+
+        <Link
+          to="/review"
+          className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm self-start sm:self-auto"
+        >
+          {reviewStats?.dueCount > 0 ? 'Start Daily Review' : 'Open Review Queue'} <ArrowRight size={14} />
+        </Link>
+      </div>
+
+      {/* Weakness Map & Topic Retention */}
+      <WeaknessMap />
       <div className="mb-8">
         <h2 className="text-xl font-bold c1 mb-4">Your Roadmaps</h2>
         {loading ? (
@@ -150,41 +190,89 @@ export default function Dashboard() {
       {/* Quick Links */}
       <div className="c-card border c-border rounded-xl p-6">
         <h2 className="text-xl font-bold c1 mb-4">Quick Actions</h2>
-        <div className="grid sm:grid-cols-2 gap-3">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Link
+            to="/review"
+            className="p-4 c-input hover:border-indigo-500/30 rounded-xl border c-border transition-all flex items-center gap-3 group"
+          >
+            <div className="w-10 h-10 bg-indigo-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Brain size={20} className="text-indigo-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <div>
+              <div className="font-medium c1 text-sm">Review Queue</div>
+              <div className="text-xs c3">Spaced repetition schedule</div>
+            </div>
+          </Link>
+          <Link
+            to="/flashcards"
+            className="p-4 c-input hover:border-indigo-500/30 rounded-xl border c-border transition-all flex items-center gap-3 group"
+          >
+            <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Layers size={20} className="text-emerald-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <div>
+              <div className="font-medium c1 text-sm">Flashcards</div>
+              <div className="text-xs c3">Flip-card active recall</div>
+            </div>
+          </Link>
+          <Link
+            to="/focus"
+            className="p-4 c-input hover:border-indigo-500/30 rounded-xl border c-border transition-all flex items-center gap-3 group"
+          >
+            <div className="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Timer size={20} className="text-amber-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <div>
+              <div className="font-medium c1 text-sm">Focus Mode</div>
+              <div className="text-xs c3">Timed mock interview</div>
+            </div>
+          </Link>
+          <Link
+            to="/notes"
+            className="p-4 c-input hover:border-indigo-500/30 rounded-xl border c-border transition-all flex items-center gap-3 group"
+          >
+            <div className="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Edit3 size={20} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <div>
+              <div className="font-medium c1 text-sm">Personal Notes</div>
+              <div className="text-xs c3">Concept annotations</div>
+            </div>
+          </Link>
           <Link
             to="/questions"
-            className="p-4 c-input hover:bg-gray-750 rounded-xl border c-border-h hover:c-border-h transition-all flex items-center gap-3"
+            className="p-4 c-input hover:border-indigo-500/30 rounded-xl border c-border transition-all flex items-center gap-3 group"
           >
-            <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
               <span className="text-lg">📝</span>
             </div>
             <div>
-              <div className="font-medium c1">Practice Questions</div>
-              <div className="text-sm c2">Review interview questions</div>
+              <div className="font-medium c1 text-sm">Questions</div>
+              <div className="text-xs c3">Browse by company & tag</div>
             </div>
           </Link>
           <Link
             to="/roadmaps"
-            className="p-4 c-input hover:bg-gray-750 rounded-xl border c-border-h hover:c-border-h transition-all flex items-center gap-3"
+            className="p-4 c-input hover:border-indigo-500/30 rounded-xl border c-border transition-all flex items-center gap-3 group"
           >
-            <div className="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
               <span className="text-lg">🗺️</span>
             </div>
             <div>
-              <div className="font-medium c1">All Roadmaps</div>
-              <div className="text-sm c2">Explore all learning paths</div>
+              <div className="font-medium c1 text-sm">All Roadmaps</div>
+              <div className="text-xs c3">Learning paths</div>
             </div>
           </Link>
           <Link
             to="/report"
-            className="p-4 c-input hover:bg-gray-750 rounded-xl border c-border-h hover:c-border-h transition-all flex items-center gap-3"
+            className="p-4 c-input hover:border-indigo-500/30 rounded-xl border c-border transition-all flex items-center gap-3 group"
           >
-            <div className="w-10 h-10 bg-rose-500/10 rounded-lg flex items-center justify-center">
-              <FileText size={20} className="text-rose-400" />
+            <div className="w-10 h-10 bg-rose-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <FileText size={20} className="text-rose-400 group-hover:scale-110 transition-transform" />
             </div>
             <div>
-              <div className="font-medium c1">Export Report</div>
-              <div className="text-sm c2">Download progress as PDF</div>
+              <div className="font-medium c1 text-sm">Export Report</div>
+              <div className="text-xs c3">Download progress PDF</div>
             </div>
           </Link>
         </div>

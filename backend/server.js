@@ -14,6 +14,12 @@ const communityRoutes = require('./routes/community');
 const notificationRoutes = require('./routes/notifications');
 const exportRoutes = require('./routes/export');
 const fetchRoutes = require('./routes/fetch-questions');
+const reviewRoutes = require('./routes/review');
+const notesRoutes = require('./routes/notes');
+const studyPlanRoutes = require('./routes/study-plan');
+const weaknessRoutes = require('./routes/weakness');
+const mockSessionRoutes = require('./routes/mock-session');
+const searchRoutes = require('./routes/search');
 
 const app = express();
 
@@ -29,6 +35,7 @@ app.use(express.json());
 // DB connection check middleware
 const dbCheck = (req, res, next) => {
   if (mongoose.connection.readyState !== 1) {
+    connectDB();
     return res.status(503).json({
       error: 'Database not connected. Please check your MongoDB connection string and IP whitelist.',
     });
@@ -47,6 +54,12 @@ app.use('/api/community', dbCheck, communityRoutes);
 app.use('/api/notifications', dbCheck, notificationRoutes);
 app.use('/api/export', dbCheck, exportRoutes);
 app.use('/api/fetch-questions', dbCheck, fetchRoutes);
+app.use('/api/review', dbCheck, reviewRoutes);
+app.use('/api/notes', dbCheck, notesRoutes);
+app.use('/api/study-plan', dbCheck, studyPlanRoutes);
+app.use('/api/weakness', dbCheck, weaknessRoutes);
+app.use('/api/mock-session', dbCheck, mockSessionRoutes);
+app.use('/api/search', dbCheck, searchRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -57,29 +70,25 @@ const PORT = parseInt(process.env.PORT) || 5000;
 // Start the server immediately
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// Connect to MongoDB with retries (handles Atlas free-tier cold starts)
-const MONGO_RETRIES = 5;
-const MONGO_RETRY_DELAY = 10000; // 10 seconds
+// Connect to MongoDB with continuous retries (handles Atlas free-tier cold starts & sleeps)
+let isConnecting = false;
 
 async function connectDB(attempt = 1) {
+  if (mongoose.connection.readyState === 1 || isConnecting) return;
+  isConnecting = true;
   try {
     await mongoose.connect(process.env.MONGODB_URI, {
       serverSelectionTimeoutMS: 30000,
       connectTimeoutMS: 30000,
     });
     console.log('Connected to MongoDB');
+    isConnecting = false;
   } catch (err) {
-    console.error(`MongoDB connection attempt ${attempt}/${MONGO_RETRIES} failed:`, err.message);
-    if (attempt < MONGO_RETRIES) {
-      console.log(`Retrying in ${MONGO_RETRY_DELAY / 1000}s...`);
-      setTimeout(() => connectDB(attempt + 1), MONGO_RETRY_DELAY);
-    } else {
-      console.error('');
-      console.error('  ⚠️  Could not connect to MongoDB after all retries.');
-      console.error('  Routes requiring the database will return 503 errors.');
-      console.error('  Check: MongoDB Atlas Network Access whitelist + connection string.');
-      console.error('');
-    }
+    isConnecting = false;
+    console.error(`MongoDB connection attempt ${attempt} failed:`, err.message);
+    const delay = Math.min(10000 * Math.pow(1.2, Math.min(attempt, 5)), 30000);
+    console.log(`Retrying MongoDB connection in ${Math.round(delay / 1000)}s...`);
+    setTimeout(() => connectDB(attempt + 1), delay);
   }
 }
 

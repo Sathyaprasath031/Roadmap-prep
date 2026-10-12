@@ -1,23 +1,30 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Search, ChevronDown, ChevronUp, Building2, Tag, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, Building2, Tag, Bookmark, BookmarkCheck, Sparkles, Edit3 } from 'lucide-react';
+import NoteEditor from '../components/NoteEditor';
 
 export default function Questions() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('');
-  const [difficulty, setDifficulty] = useState('');
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [category, setCategory] = useState(searchParams.get('category') || '');
+  const [difficulty, setDifficulty] = useState(searchParams.get('difficulty') || '');
+  const [companyFilter, setCompanyFilter] = useState(searchParams.get('company') || '');
   const [expandedId, setExpandedId] = useState(null);
   const [bookmarks, setBookmarks] = useState(new Set());
   const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
+  const [eli5Map, setEli5Map] = useState({});
+  const [noteOpenMap, setNoteOpenMap] = useState({});
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, pages: 1 });
 
   const categories = ['Frontend', 'Backend', 'DSA', 'System Design', 'DevOps', 'ML/AI'];
   const difficulties = ['Easy', 'Medium', 'Hard'];
+  const topCompanies = ['Google', 'Amazon', 'Meta', 'Microsoft', 'Apple', 'Netflix', 'Uber'];
 
   // Load user's bookmarks on mount
   useEffect(() => {
@@ -28,9 +35,19 @@ export default function Questions() {
     }
   }, [user]);
 
+  // Sync state if URL query params change (e.g. from global search)
+  useEffect(() => {
+    const urlSearch = searchParams.get('search');
+    const urlCompany = searchParams.get('company');
+    const urlCategory = searchParams.get('category');
+    if (urlSearch !== null) setSearch(urlSearch);
+    if (urlCompany !== null) setCompanyFilter(urlCompany);
+    if (urlCategory !== null) setCategory(urlCategory);
+  }, [searchParams]);
+
   useEffect(() => {
     setPage(1);
-  }, [search, category, difficulty]);
+  }, [search, category, difficulty, companyFilter]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -40,6 +57,7 @@ export default function Questions() {
         if (search) params.set('search', search);
         if (category) params.set('category', category);
         if (difficulty) params.set('difficulty', difficulty);
+        if (companyFilter) params.set('company', companyFilter);
         params.set('page', page);
         params.set('limit', '20');
 
@@ -55,7 +73,7 @@ export default function Questions() {
 
     const debounce = setTimeout(fetchQuestions, 300);
     return () => clearTimeout(debounce);
-  }, [search, category, difficulty, page]);
+  }, [search, category, difficulty, companyFilter, page]);
 
   const toggleBookmark = async (questionId) => {
     if (!user) return;
@@ -131,6 +149,30 @@ export default function Questions() {
           <option value="">All Difficulties</option>
           {difficulties.map((d) => <option key={d} value={d}>{d}</option>)}
         </select>
+      </div>
+
+      {/* Company Filter Pills */}
+      <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
+        <span className="text-xs c3 flex items-center gap-1 flex-shrink-0"><Building2 size={12} /> Company:</span>
+        <button
+          onClick={() => setCompanyFilter('')}
+          className={`px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+            companyFilter === '' ? 'bg-indigo-600 text-white' : 'c-input c2 hover:c1'
+          }`}
+        >
+          All
+        </button>
+        {topCompanies.map(c => (
+          <button
+            key={c}
+            onClick={() => setCompanyFilter(companyFilter === c ? '' : c)}
+            className={`px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+              companyFilter === c ? 'bg-indigo-600 text-white' : 'c-input c2 hover:c1'
+            }`}
+          >
+            {c}
+          </button>
+        ))}
       </div>
 
       {user && (
@@ -210,9 +252,50 @@ export default function Questions() {
               {expandedId === q._id && (
                 <div className="px-5 pb-5 border-t c-border">
                   <div className="mt-4">
-                    <h4 className="text-sm font-medium text-indigo-400 mb-2">Answer</h4>
-                    <p className="c2 text-sm leading-relaxed whitespace-pre-line">{q.answer}</p>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium text-indigo-400">Answer</h4>
+                      <button
+                        onClick={() => setEli5Map(prev => ({ ...prev, [q._id]: !prev[q._id] }))}
+                        className={`text-xs px-2.5 py-1 rounded-md border transition-colors flex items-center gap-1.5 ${
+                          eli5Map[q._id]
+                            ? 'bg-amber-500/10 text-amber-400 border-amber-500/30 font-medium'
+                            : 'c-input c3 hover:c2 border-transparent'
+                        }`}
+                      >
+                        <Sparkles size={12} /> {eli5Map[q._id] ? 'Standard View' : "Explain Like I'm 5"}
+                      </button>
+                    </div>
+
+                    {eli5Map[q._id] ? (
+                      <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-sm c1 leading-relaxed">
+                        <p className="font-semibold text-amber-400 text-xs mb-1">Simplified Explanation:</p>
+                        {q.eli5Answer || `Think of it simply: ${q.title} is about breaking a complex idea into easy, everyday steps that anyone can follow.`}
+                      </div>
+                    ) : (
+                      <p className="c2 text-sm leading-relaxed whitespace-pre-line">{q.answer}</p>
+                    )}
                   </div>
+
+                  {/* Enhanced Company Context */}
+                  {q.company?.length > 0 && (
+                    <div className="mt-4 p-3 c-input rounded-xl">
+                      <div className="flex items-center gap-1.5 text-xs font-medium c2 mb-1.5">
+                        <Building2 size={13} className="text-indigo-400" /> Asked at these companies:
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {q.company.map(c => (
+                          <button
+                            key={c}
+                            onClick={() => setCompanyFilter(c)}
+                            className="px-2 py-0.5 text-xs rounded c-card border c-border c2 hover:text-indigo-400 hover:border-indigo-500/30 transition-colors cursor-pointer"
+                          >
+                            {c}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {q.tags?.length > 0 && (
                     <div className="flex items-center gap-2 mt-4 flex-wrap">
                       <Tag size={12} className="c3" />
@@ -221,6 +304,28 @@ export default function Questions() {
                           {tag}
                         </span>
                       ))}
+                    </div>
+                  )}
+
+                  {/* Personal Notes */}
+                  {user && (
+                    <div className="mt-4">
+                      {noteOpenMap[q._id] ? (
+                        <NoteEditor
+                          targetType="Question"
+                          targetId={q._id}
+                          questionId={q._id}
+                          initialTitle={q.title}
+                          onClose={() => setNoteOpenMap(prev => ({ ...prev, [q._id]: false }))}
+                        />
+                      ) : (
+                        <button
+                          onClick={() => setNoteOpenMap(prev => ({ ...prev, [q._id]: true }))}
+                          className="text-xs text-indigo-400 hover:underline flex items-center gap-1.5"
+                        >
+                          <Edit3 size={13} /> Add / View Personal Notes
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
