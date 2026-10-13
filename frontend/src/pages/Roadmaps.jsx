@@ -45,9 +45,9 @@ export default function Roadmaps() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
         <div className="c-card border c-border rounded-2xl p-12 max-w-md mx-auto">
-          <LogIn size={48} className="text-indigo-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold c1 mb-3">Sign in to access Roadmaps</h2>
-          <p className="c2 mb-6">Create an account or log in to view learning roadmaps and track your progress.</p>
+          <LogIn size={36} className="text-indigo-600 dark:text-indigo-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold c1 mb-2 tracking-tight">Sign in to access Roadmaps</h2>
+          <p className="c2 text-sm mb-5">Create an account or log in to view learning roadmaps and track your progress.</p>
           <div className="flex gap-3 justify-center">
             <Link
               to="/login"
@@ -70,8 +70,8 @@ export default function Roadmaps() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold c1 mb-4">Learning Roadmaps</h1>
-        <p className="c2 text-lg max-w-2xl mx-auto">
+        <h1 className="text-3xl font-bold c1 mb-3 tracking-tight">Learning Roadmaps</h1>
+        <p className="c2 text-sm max-w-xl mx-auto">
           Follow structured learning paths to prepare for interviews in your chosen domain
         </p>
       </div>
@@ -81,24 +81,24 @@ export default function Roadmaps() {
           <Link
             key={roadmap._id}
             to={`/roadmaps/${roadmap.slug}`}
-            className="group relative c-card border c-border rounded-2xl p-6 hover:c-border-h transition-all hover:-translate-y-1"
+            className="group relative c-card border c-border rounded-2xl p-6 card-interactive"
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${colorMap[roadmap.color] || 'from-indigo-600 to-indigo-400'} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity`}></div>
             <div className="relative">
               <div className="flex items-start justify-between mb-4">
                 <span className="text-4xl">{roadmap.icon}</span>
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  roadmap.difficulty === 'Beginner' ? 'bg-green-500/10 text-green-400' :
-                  roadmap.difficulty === 'Intermediate' ? 'bg-amber-500/10 text-amber-400' :
-                  'bg-red-500/10 text-red-400'
+                  roadmap.difficulty === 'Beginner' ? 'bg-green-500/10 text-green-600 dark:text-green-400' :
+                  roadmap.difficulty === 'Intermediate' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                  'bg-red-500/10 text-red-600 dark:text-red-400'
                 }`}>
                   {roadmap.difficulty}
                 </span>
               </div>
-              <h3 className="text-xl font-bold c1 mb-2 group-hover:text-indigo-400 transition-colors">
+              <h3 className="text-lg font-semibold c1 mb-1.5 tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                 {roadmap.title}
               </h3>
-              <p className="c2 text-sm mb-4 line-clamp-2">{roadmap.description}</p>
+              <p className="c3 text-xs mb-4 line-clamp-2 leading-relaxed">{roadmap.description}</p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 c3 text-sm">
                   <span className="flex items-center gap-1">
@@ -108,7 +108,7 @@ export default function Roadmaps() {
                     <BookOpen size={14} /> {roadmap.stepCount || 0} steps
                   </span>
                 </div>
-                <ArrowRight size={18} className="c3 group-hover:text-indigo-400 transition-colors" />
+                <ArrowRight size={18} className="c3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
               </div>
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {roadmap.tags?.slice(0, 4).map((tag) => (

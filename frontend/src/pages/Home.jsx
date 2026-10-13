@@ -32,9 +32,9 @@ export default function Home() {
               <CheckCircle size={16} />
               Trusted by 10,000+ developers
             </div>
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold c1 mb-6 animate-fade-in animate-delay-100 leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight c1 mb-6 animate-fade-in animate-delay-100 leading-tight">
               Your Roadmap to
-              <span className="bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent"> Tech Mastery</span>
+              <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-500 bg-clip-text text-transparent"> Tech Mastery</span>
             </h1>
             <p className="text-lg sm:text-xl c2 mb-10 max-w-2xl mx-auto animate-fade-in animate-delay-200">
               Follow structured learning paths, practice with 300+ interview questions, and track your progress all in one place.
@@ -42,13 +42,13 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in animate-delay-300">
               <Link
                 to="/roadmaps"
-                className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 flex items-center justify-center gap-2"
+                className="px-8 py-3.5 btn-primary font-medium rounded-xl flex items-center justify-center gap-2 text-sm"
               >
                 Explore Roadmaps <ArrowRight size={18} />
               </Link>
               <Link
                 to="/questions"
-                className="px-8 py-4 c-btn-outline font-semibold rounded-xl flex items-center justify-center gap-2"
+                className="px-8 py-3.5 c-btn-outline font-semibold rounded-xl flex items-center justify-center gap-2 text-sm"
               >
                 Practice Questions
               </Link>
@@ -68,11 +68,11 @@ export default function Home() {
             <Link
               key={domain.slug}
               to={`/roadmaps/${domain.slug}`}
-              className={`group relative p-6 rounded-2xl c-card border c-border hover:c-border-h transition-all hover:-translate-y-1 animate-fade-in animate-delay-${(i + 1) * 100}`}
+              className={`group relative p-6 rounded-2xl c-card border c-border hover:c-border-h transition-all animate-fade-in card-interactive animate-delay-${(i + 1) * 100}`}
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${domain.color} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity`}></div>
-              <div className="text-4xl mb-3">{domain.icon}</div>
-              <h3 className="font-semibold c1">{domain.title}</h3>
+              <div className="text-3xl mb-2">{domain.icon}</div>
+              <h3 className="text-sm font-semibold c1">{domain.title}</h3>
             </Link>
           ))}
         </div>
@@ -86,12 +86,12 @@ export default function Home() {
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((f, i) => (
-            <div key={i} className="p-6 rounded-2xl c-card border c-border transition-all">
-              <div className="w-12 h-12 bg-indigo-600/10 rounded-xl flex items-center justify-center mb-4">
-                <f.icon size={24} className="text-indigo-400" />
+            <div key={i} className="p-6 rounded-2xl c-card border c-border transition-all card-interactive">
+              <div className="w-10 h-10 bg-indigo-500/10 rounded-lg flex items-center justify-center mb-3">
+                <f.icon size={20} className="text-indigo-600 dark:text-indigo-400" />
               </div>
-              <h3 className="font-semibold c1 mb-2">{f.title}</h3>
-              <p className="c2 text-sm">{f.desc}</p>
+              <h3 className="text-sm font-semibold c1 mb-1.5">{f.title}</h3>
+              <p className="c3 text-xs leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>
@@ -108,8 +108,8 @@ export default function Home() {
               { num: '100%', label: 'Free' },
             ].map((s, i) => (
               <div key={i}>
-                <div className="text-3xl font-bold c1 mb-1">{s.num}</div>
-                <div className="c2 text-sm">{s.label}</div>
+                <div className="text-2xl font-bold c1 mb-0.5">{s.num}</div>
+                <div className="c3 text-xs">{s.label}</div>
               </div>
             ))}
           </div>
@@ -118,7 +118,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t c-border py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center c3 text-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center c3 text-xs">
           <p>Built with passion to help developers succeed. Good luck with your interviews!</p>
         </div>
       </footer>

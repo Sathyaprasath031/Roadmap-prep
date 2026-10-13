@@ -117,8 +117,8 @@ export default function Questions() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold c1 mb-4">Interview Questions</h1>
-        <p className="c2 text-lg">Practice commonly asked questions from top tech companies</p>
+        <h1 className="text-3xl font-bold c1 mb-3 tracking-tight">Interview Questions</h1>
+        <p className="c2 text-sm">Practice commonly asked questions from top tech companies</p>
       </div>
 
       {/* Filters */}
@@ -130,13 +130,13 @@ export default function Questions() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search questions..."
-            className="w-full pl-10 pr-4 py-3 c-card border c-border rounded-xl c1 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 c-input border c-border rounded-xl c1 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors text-sm"
           />
         </div>
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="px-4 py-3 c-card border c-border rounded-xl c2 focus:outline-none focus:border-indigo-500 appearance-none cursor-pointer"
+          className="px-3 py-2.5 c-input border c-border rounded-xl c2 text-sm focus:outline-none focus:border-indigo-500 appearance-none cursor-pointer"
         >
           <option value="">All Categories</option>
           {categories.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -144,7 +144,7 @@ export default function Questions() {
         <select
           value={difficulty}
           onChange={(e) => setDifficulty(e.target.value)}
-          className="px-4 py-3 c-card border c-border rounded-xl c2 focus:outline-none focus:border-indigo-500 appearance-none cursor-pointer"
+          className="px-3 py-2.5 c-input border c-border rounded-xl c2 text-sm focus:outline-none focus:border-indigo-500 appearance-none cursor-pointer"
         >
           <option value="">All Difficulties</option>
           {difficulties.map((d) => <option key={d} value={d}>{d}</option>)}
@@ -207,7 +207,7 @@ export default function Questions() {
           {filteredQuestions.map((q) => (
             <div
               key={q._id}
-              className="c-card border c-border rounded-xl overflow-hidden hover:c-border-h transition-all"
+              className="c-card border c-border rounded-xl overflow-hidden hover:c-border-h transition-all card-interactive"
             >
               <div
                 className="flex items-center gap-4 p-5 cursor-pointer"
@@ -239,7 +239,7 @@ export default function Questions() {
                       title={bookmarks.has(q._id) ? 'Remove bookmark' : 'Bookmark question'}
                     >
                       {bookmarks.has(q._id) ? (
-                        <BookmarkCheck size={18} className="text-indigo-400" />
+                        <BookmarkCheck size={18} className="text-indigo-600 dark:text-indigo-400" />
                       ) : (
                         <Bookmark size={18} className="c3 hover:c2" />
                       )}
@@ -253,12 +253,12 @@ export default function Questions() {
                 <div className="px-5 pb-5 border-t c-border">
                   <div className="mt-4">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-medium text-indigo-400">Answer</h4>
+                      <h4 className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Answer</h4>
                       <button
                         onClick={() => setEli5Map(prev => ({ ...prev, [q._id]: !prev[q._id] }))}
                         className={`text-xs px-2.5 py-1 rounded-md border transition-colors flex items-center gap-1.5 ${
                           eli5Map[q._id]
-                            ? 'bg-amber-500/10 text-amber-400 border-amber-500/30 font-medium'
+                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 font-medium'
                             : 'c-input c3 hover:c2 border-transparent'
                         }`}
                       >
@@ -268,7 +268,7 @@ export default function Questions() {
 
                     {eli5Map[q._id] ? (
                       <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-sm c1 leading-relaxed">
-                        <p className="font-semibold text-amber-400 text-xs mb-1">Simplified Explanation:</p>
+                        <p className="font-semibold text-amber-600 dark:text-amber-400 text-xs mb-1">Simplified Explanation:</p>
                         {q.eli5Answer || `Think of it simply: ${q.title} is about breaking a complex idea into easy, everyday steps that anyone can follow.`}
                       </div>
                     ) : (
@@ -341,17 +341,17 @@ export default function Questions() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="px-4 py-2 c-card border c-border rounded-lg text-sm c2 hover:c1 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 c-input border c-border rounded-lg text-sm c2 hover:c1 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Previous
           </button>
-          <span className="text-sm c3">
+          <span className="text-xs c3">
             Page {page} of {pagination.pages} ({pagination.total} questions)
           </span>
           <button
             onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
             disabled={page === pagination.pages}
-            className="px-4 py-2 c-card border c-border rounded-lg text-sm c2 hover:c1 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 c-input border c-border rounded-lg text-sm c2 hover:c1 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Next
           </button>

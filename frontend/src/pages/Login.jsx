@@ -30,8 +30,8 @@ export default function Login() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold c1 mb-2">Welcome back</h1>
-          <p className="c2">Sign in to continue your preparation</p>
+          <h1 className="text-2xl font-bold c1 mb-1.5 tracking-tight">Welcome back</h1>
+          <p className="c2 text-sm">Sign in to continue your preparation</p>
         </div>
         <div className="c-card border c-border rounded-2xl p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -48,7 +48,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 c-input border rounded-xl focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 c-input border rounded-xl focus:outline-none focus:border-indigo-500 transition-colors text-sm"
                   placeholder="you@example.com"
                   required
                 />
@@ -62,7 +62,7 @@ export default function Login() {
                   type={showPw ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 c-input border rounded-xl focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full pl-10 pr-12 py-2.5 c-input border rounded-xl focus:outline-none focus:border-indigo-500 transition-colors text-sm"
                   placeholder="Enter your password"
                   required
                 />
@@ -74,7 +74,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors"
+              className="w-full py-2.5 btn-primary disabled:opacity-50 font-medium rounded-xl transition-colors text-sm"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
