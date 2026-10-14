@@ -25,6 +25,18 @@ export default function Navbar() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Prevent background scroll when mobile drawer is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [menuOpen]);
+
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -169,41 +181,128 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
-      {menuOpen && (
-        <div className="md:hidden border-t c-border c-bg px-4 py-3 space-y-1.5 animate-fade-in">
-          <button
-            onClick={() => { setSearchOpen(true); setMenuOpen(false); }}
-            className="w-full text-left py-2 px-3 c-input rounded-lg flex items-center justify-between text-xs c2 mb-2 border c-border"
-          >
-            <span className="flex items-center gap-2"><Search size={14} className="text-indigo-400" /> Search knowledge base...</span>
-            <kbd className="text-[10px] px-1 py-0.5 rounded c-card border c-border font-mono">⌘K</kbd>
-          </button>
-          <Link to="/roadmaps" className={navLinkClass('/roadmaps') + ' block'} onClick={() => setMenuOpen(false)}>Roadmaps</Link>
-          <Link to="/questions" className={navLinkClass('/questions') + ' block'} onClick={() => setMenuOpen(false)}>Questions</Link>
-          <Link to="/quiz" className={navLinkClass('/quiz') + ' block'} onClick={() => setMenuOpen(false)}>Quiz</Link>
-          {user && (
-            <>
-              <Link to="/review" className={navLinkClass('/review') + ' block'} onClick={() => setMenuOpen(false)}>Review Queue</Link>
-              <Link to="/notes" className={navLinkClass('/notes') + ' block'} onClick={() => setMenuOpen(false)}>Personal Notes</Link>
-              <Link to="/dashboard" className={navLinkClass('/dashboard') + ' block'} onClick={() => setMenuOpen(false)}>Dashboard</Link>
-            </>
-          )}
-          <Link to="/community" className={navLinkClass('/community') + ' block'} onClick={() => setMenuOpen(false)}>Community</Link>
-          {user ? (
-            <div className="pt-2 border-t c-border">
-              <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="w-full text-left py-2 px-3 text-xs text-rose-400 hover:bg-rose-500/10 rounded-lg flex items-center gap-2">
-                <LogOut size={14} /> Sign out
+      {/* Mobile Slide-Over Drawer (Left to Right) */}
+      <div
+        className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${
+          menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        aria-hidden={!menuOpen}
+      >
+        {/* Backdrop */}
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+          onClick={() => setMenuOpen(false)}
+        />
+
+        {/* Off-canvas panel (Left to Right) */}
+        <div
+          className={`fixed inset-y-0 left-0 w-72 sm:w-80 max-w-[85vw] c-bg border-r c-border shadow-2xl flex flex-col justify-between p-5 transform transition-transform duration-300 ease-out z-10 ${
+            menuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          {/* Top Brand & Close Button */}
+          <div>
+            <div className="flex items-center justify-between pb-4 mb-4 border-b c-border">
+              <Link to="/" className="flex items-center gap-2.5" onClick={() => setMenuOpen(false)}>
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 flex items-center justify-center shadow-sm shadow-indigo-500/20">
+                  <Compass size={17} className="text-white" />
+                </div>
+                <span className="font-bold text-base tracking-tight c1">
+                  Roadmap<span className="text-indigo-600 dark:text-indigo-400">Prep</span>
+                </span>
+              </Link>
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="p-1.5 c2 hover:c1 rounded-lg c-input border c-border"
+                aria-label="Close menu"
+              >
+                <X size={18} />
               </button>
             </div>
-          ) : (
-            <div className="flex gap-2 pt-2 border-t c-border">
-              <Link to="/login" className="flex-1 text-center py-2 text-xs c2 hover:c1 border c-border rounded-lg" onClick={() => setMenuOpen(false)}>Log in</Link>
-              <Link to="/register" className="flex-1 text-center py-2 text-xs btn-primary rounded-lg" onClick={() => setMenuOpen(false)}>Sign up</Link>
-            </div>
-          )}
+
+            {/* Quick Search */}
+            <button
+              onClick={() => { setSearchOpen(true); setMenuOpen(false); }}
+              className="w-full text-left py-2 px-3 c-input rounded-xl flex items-center justify-between text-xs c2 mb-4 border c-border shadow-sm"
+            >
+              <span className="flex items-center gap-2">
+                <Search size={14} className="text-indigo-500 dark:text-indigo-400" />
+                <span>Search knowledge base...</span>
+              </span>
+              <kbd className="text-[10px] px-1.5 py-0.5 rounded c-card border c-border font-mono">⌘K</kbd>
+            </button>
+
+            {/* Navigation Links */}
+            <nav className="space-y-1">
+              <Link to="/roadmaps" className={navLinkClass('/roadmaps') + ' block py-2'} onClick={() => setMenuOpen(false)}>
+                Roadmaps
+              </Link>
+              <Link to="/questions" className={navLinkClass('/questions') + ' block py-2'} onClick={() => setMenuOpen(false)}>
+                Questions
+              </Link>
+              <Link to="/quiz" className={navLinkClass('/quiz') + ' block py-2'} onClick={() => setMenuOpen(false)}>
+                Quiz
+              </Link>
+              {user && (
+                <>
+                  <Link to="/review" className={navLinkClass('/review') + ' block py-2'} onClick={() => setMenuOpen(false)}>
+                    Review Queue
+                  </Link>
+                  <Link to="/notes" className={navLinkClass('/notes') + ' block py-2'} onClick={() => setMenuOpen(false)}>
+                    Personal Notes
+                  </Link>
+                  <Link to="/dashboard" className={navLinkClass('/dashboard') + ' block py-2'} onClick={() => setMenuOpen(false)}>
+                    Dashboard
+                  </Link>
+                </>
+              )}
+              <Link to="/community" className={navLinkClass('/community') + ' block py-2'} onClick={() => setMenuOpen(false)}>
+                Community
+              </Link>
+            </nav>
+          </div>
+
+          {/* Bottom Profile / Auth Controls */}
+          <div className="pt-4 border-t c-border">
+            {user ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2.5 px-2 py-1">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center text-xs font-bold text-white uppercase shadow-sm">
+                    {user.name ? user.name[0] : 'U'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold c1 truncate">{user.name}</p>
+                    <p className="text-[11px] c3 truncate">{user.email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => { handleLogout(); setMenuOpen(false); }}
+                  className="w-full text-left py-2 px-3 text-xs text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl flex items-center gap-2 transition-colors border border-transparent hover:border-rose-500/20"
+                >
+                  <LogOut size={14} /> Sign out
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <Link
+                  to="/login"
+                  className="w-full text-center py-2 text-xs c2 hover:c1 border c-border rounded-xl font-medium transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/register"
+                  className="w-full text-center py-2 text-xs btn-primary rounded-xl font-medium shadow-sm"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Sign up
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </nav>
     <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
